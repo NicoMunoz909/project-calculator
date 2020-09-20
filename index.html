@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: darkgray;
+        }
+        #outer-frame {
+            margin: auto;
+            width: 30vw;
+            height: 35vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: rgb(49, 47, 47);
+            border-radius: 2%;
+            box-shadow: 1px 1px 5px rgb(180, 176, 176) inset,
+                        -1px -1px 5px black inset;
+        }
+        #display {
+            margin: auto;
+            margin-top: 2vw;
+            width: 80%;
+            box-shadow: 3px 3px 2px rgb(5, 5, 5)  inset,
+                        -3px -3px 2px rgb(10, 10, 10) inset;
+            background-color: rgb(200, 218, 189);
+            border-radius: 3%;
+        }
+        p {
+            margin: 0.5vw;
+            font-size: 150%;
+            width: 95%;
+            text-align: right;
+        }
+        button {
+            font-size: 2vw;
+            font-family: inherit;
+            box-shadow: -1px -1px 2px rgb(0, 0, 0),
+                        2px 2px 3px rgb(218, 207, 207) inset,
+                        2px 2px 2px rgb(53, 53, 53);
+        }
+        #buttons {
+            display: grid;
+            grid-template-columns: 4fr 4fr 4fr 4fr;
+            grid-template-rows: 5fr 5fr 5fr 5fr 5fr 5fr;
+            margin-bottom: 2vw;
+            width: 80%;
+            margin: auto;
+            grid-gap: 0.3vw;
+            border: none;
+        }
+        #zero {
+            grid-column: 1/3;
+        }
+        #equal {
+            grid-row: 4/6;
+            grid-column: 4/5;
+        }
+        #plus {
+            grid-row: 2/4;
+            grid-column: 4/5;
+        }
+        #clear {
+            grid-column: 1/4;
+        }
+        .operations {
+            background-color: rgb(112, 109, 109);
+            box-shadow: -1px -1px 2px rgb(0, 0, 0),
+                        2px 2px 3px rgb(175, 172, 172) inset,
+                        2px 2px 2px rgb(49, 38, 38);
+            border: none;
+            border-radius: 5%;
+        }
+    </style>
+    <head>
+        <title>Calculator</title>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div id="outer-frame">
+            <div id="display">
+                <p>0</p>
+            </div>
+            <div id="buttons">
+                <button value="back" data-key="8" class="operations">&#9003</button>
+                <button value="/" data-key="111" class="operations">/</button>
+                <button value="*" data-key="106" class="operations">*</button>
+                <button value="-" data-key="109" class="operations">-</button>
+                <button value="7" data-key="103" class="keypads">7</button>
+                <button value="8" data-key="104" class="keypads">8</button>
+                <button value="9" data-key="105" class="keypads">9</button>
+                <button value="+" id="plus" data-key="107" class="operations">+</button>
+                <button value="4" data-key="100" class="keypads">4</button>
+                <button value="5" data-key="101" class="keypads">5</button>
+                <button value="6" data-key="102" class="keypads">6</button>
+                <button value="1" data-key="97" class="keypads">1</button>
+                <button value="2" data-key="98" class="keypads">2</button>
+                <button value="3" data-key="99" class="keypads">3</button>
+                <button id="equal" value="=" data-key="13" class="operations">=</button>
+                <button value="0" id="zero" data-key="96" class="keypads">0</button>
+                <button value="." data-key="110" class="keypads">.</button>
+                <button id="clear" value="clear" class="operations">AC</button>
+                <button value="plusminus" class="operations">&plusmn</button>
+            </div>
+        </div>
+    </body>
+    <script>
+
+        let n1 = 0;
+        let n2 = 0;
+        let op = "";
+        let n1Full = false;
+        let n2Full = false;
+        let computed = false;
+        let inputBuffer = "";
+
+        function add(n1, n2) {
+            return Math.round(((n1+n2) + Number.EPSILON) * 100) / 100;
+        };
+        
+        function subtract(n1, n2) {
+            return Math.round(((n1-n2) + Number.EPSILON) * 100) / 100;
+        };
+
+        function multiply(n1,n2) {
+            return Math.round(((n1*n2) + Number.EPSILON) * 100) / 100;
+        };
+
+        function divide(n1,n2) {
+            if(n2) return Math.round(((n1/n2) + Number.EPSILON) * 100) / 100;
+            else return "Dividing by zero!";
+        };
+
+        function operate (op,n1,n2){
+            switch(op) {
+                case '+':
+                    return add(n1,n2);
+                    break;
+                case '-':
+                    return subtract(n1,n2);
+                    break;
+                case '*':
+                    return multiply(n1,n2);
+                    break;
+                case '/':
+                    return divide(n1,n2);
+                    break;
+                default:
+                    return "No operator"
+            }
+        };
+
+        function getInput() {
+            switch (this.value) {
+                case '1': case '2': case '3': case '4': case '5': case '6': 
+                case '7': case '8': case '9': case '0': 
+                    inputBuffer += this.value;
+                    display.textContent = inputBuffer;
+                    break;
+                case '.':
+                    if(inputBuffer.indexOf('.') == -1) inputBuffer += this.value;
+                    display.textContent = inputBuffer;
+                    break;
+                case 'back':
+                    if(inputBuffer.length > 1) inputBuffer = inputBuffer.slice(0,inputBuffer.length - 1);
+                    else {
+                        inputBuffer = "";
+                        display.textContent = "0";
+                        break;
+                        }
+                    display.textContent = inputBuffer;
+                    break;
+                case 'plusminus':
+                        if(inputBuffer != ""){
+                            if(inputBuffer.indexOf('-') != -1) inputBuffer = inputBuffer.slice(1,inputBuffer.length);
+                            else inputBuffer = '-' + inputBuffer;
+                            display.textContent = inputBuffer;
+                            break;
+                        } else {
+                            n1 = -n1;
+                            display.textContent = n1;
+                            break;
+                        }
+                case '+': case '-': case '*': case '/':
+                    if(!n1Full && !computed) {
+                        n1 = parseFloat(inputBuffer);
+                        inputBuffer = "";
+                        n1Full = true;
+                    }
+                    else if(!n2Full && !computed){
+                        n2 = parseFloat(inputBuffer);
+                        inputBuffer = "";
+                        n2Full = true;
+                    }
+                    if(n1Full && n2Full){
+                        n1 = operate(op,n1,n2);
+                        n2Full = false;
+                        display.textContent = n1;
+                    }
+                    op = this.value;
+                    computed = false;
+                    break;
+                case '=':
+                    n2 = parseFloat(inputBuffer);
+                    inputBuffer = "";
+                    n1 = operate(op,n1,n2);
+                    n2Full = false;
+                    computed = true;
+                    display.textContent = n1;
+                    break;
+                case 'clear':
+                    inputBuffer = "";
+                    n1 = 0;
+                    n2 = 0;
+                    op = "";
+                    n1Full = false;
+                    n2Full = false;
+                    computed = false;
+                    display.textContent = "0";
+                    break;
+            };
+        }
+
+        function keyHandler(e){
+            if ((e.keyCode >= 96 && e.keyCode <= 111) || e.keyCode == 8 || e.keyCode == 13){
+                const button = document.querySelector(`button[data-key="${e.keyCode}"]`);
+                button.addEventListener('keydown',getInput);
+                button.dispatchEvent(new KeyboardEvent('keydown',{'key':`${e.key}`}));
+                button.removeEventListener('keydown',getInput);
+            }
+            else return;
+        }
+
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => button.addEventListener('click', getInput));
+        const display = document.querySelector('#display>p');
+        window.addEventListener('keydown',keyHandler);
+        
+    </script>
+</html>
